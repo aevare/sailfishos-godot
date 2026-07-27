@@ -1,0 +1,12 @@
+# Source and template build artifacts
+godot-src/
+godot-templates/
+
+# Packaging working dirs
+sfos-pkg/
+RPMS/
+build/
+
+# OS cruft
+.DS_Store
+*~

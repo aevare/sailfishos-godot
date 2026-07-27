@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=My Game
+Comment=Your game's one-line description
+Icon=harbour-mygame
+Exec=harbour-mygame --rendering-driver opengl3_es --main-pack /usr/share/harbour-mygame/harbour-mygame.pck
+X-Nemo-Application-Type=generic
+X-Nemo-OrientationLock=portrait
+
+[X-Sailjail]
+OrganizationName=com.example
+ApplicationName=harbour-mygame
+Permissions=Internet
