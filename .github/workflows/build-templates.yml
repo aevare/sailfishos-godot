@@ -103,7 +103,8 @@ jobs:
           EOF
           TAG="$GITHUB_REF_NAME"
           gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
             --title "Godot SailfishOS export templates ($TAG)" \
             --notes-file notes.md \
             dist/* \
-          || gh release upload "$TAG" dist/* --clobber
+          || gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" dist/* --clobber
