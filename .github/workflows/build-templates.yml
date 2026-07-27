@@ -28,7 +28,7 @@ jobs:
         run: |
           RAW="${{ github.event.inputs.sfos_versions }}"
           [ -z "$RAW" ] && RAW="5.0.0.43,5.1.0.11,5.2.0.15"
-          JSON=$(echo "$RAW" | tr ',' '\n' | tr -d '[:space:]' | grep -v '^$' | jq -R . | jq -cs .)
+          JSON=$(echo "$RAW" | tr ',' '\n' | tr -d '[:blank:]' | grep -v '^$' | jq -R . | jq -cs .)
           echo "matrix=$JSON" >> "$GITHUB_OUTPUT"
           TAG="${{ github.event.inputs.godot_tag }}"
           echo "godot_tag=${TAG:-4.4.1-auroraos-4}" >> "$GITHUB_OUTPUT"
