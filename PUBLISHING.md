@@ -32,8 +32,8 @@ manual compiling or uploading. Just push a version tag:
 
 ```bash
 cd ~/Workspace/godot-sfos
-git tag v4.4.1-auroraos-4      # tag names the Godot version + AuroraOS fork tag
-git push origin v4.4.1-auroraos-4
+git tag v4.4.1        # tag names the Godot version; add -1, -2, … for rebuilds
+git push origin v4.4.1
 ```
 
 The workflow then, for each supported SailfishOS release (5.0 / 5.1 / 5.2):

@@ -85,7 +85,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cat > notes.md <<'EOF'
-          Pre-built Godot export templates for SailfishOS/AuroraOS (aarch64).
+          Pre-built Godot export templates for SailfishOS (aarch64).
 
           **Pick the asset matching your device's SailfishOS release.** A template
           built against one release can render incorrectly on another (see the

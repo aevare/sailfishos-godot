@@ -1,6 +1,6 @@
 # godot-sfos
 
-Scripts and packaging templates for building and distributing a Godot 4 game on SailfishOS (AuroraOS).
+Scripts and packaging templates for building and distributing a Godot 4 game on SailfishOS.
 
 Tested with **Godot 4.4.1** and **SailfishOS 5.1** on an aarch64 device.
 
@@ -10,7 +10,7 @@ Tested with **Godot 4.4.1** and **SailfishOS 5.1** on an aarch64 device.
 
 SailfishOS ships with an older glibc (≤ 2.31). Pre-built Godot export templates link against glibc 2.32+, so they fail with a symbol error on-device. The solution is to cross-compile the template inside the SailfishOS Platform SDK, which targets the SailfishOS sysroot and produces a compatible binary.
 
-The [savegame/godot](https://github.com/savegame/godot) fork adds AuroraOS/SailfishOS Wayland support to the `platform=linuxbsd` backend via an `auroraos=yes` SCons flag. This enables the `qt_surface_extension` Wayland protocol required by the SailfishOS lipstick compositor.
+The [savegame/godot](https://github.com/savegame/godot) fork adds SailfishOS Wayland support to the `platform=linuxbsd` backend. This enables the `qt_surface_extension` Wayland protocol required by the SailfishOS lipstick compositor.
 
 ---
 
@@ -94,7 +94,7 @@ In your `project.godot`, the orientation **must** be stored as an integer, not a
 window/handheld/orientation=1
 ```
 
-Do **not** use `window/handheld/orientation="portrait"`. Godot reads this setting as an int at startup; the string `"portrait"` is cast to `0`, which equals `SCREEN_LANDSCAPE`. The AuroraOS Wayland backend then applies a 270° buffer transform, the compositor reconfigures the window to landscape dimensions, and the game renders broken (top portion only, no touch input).
+Do **not** use `window/handheld/orientation="portrait"`. Godot reads this setting as an int at startup; the string `"portrait"` is cast to `0`, which equals `SCREEN_LANDSCAPE`. The SailfishOS Wayland backend then applies a 270° buffer transform, the compositor reconfigures the window to landscape dimensions, and the game renders broken (top portion only, no touch input).
 
 Integer values:
 - `0` = Landscape
@@ -108,7 +108,7 @@ Integer values:
 
 The template binary links against the glibc version in the SDK you build with. A binary built with the **5.1 SDK** requires `GLIBC_2.38` and will **not** run on SailfishOS 4.6 or earlier. To support older devices, build with the matching SDK version.
 
-**Rendering, not just linking.** Matching the SDK to the target release matters beyond glibc. A template built with the **5.0 SDK** rendered incorrectly on a **5.1 device** (portrait orientation was not applied), fixed only by rebuilding against the 5.1 SDK. The AuroraOS Wayland/orientation path is compiled against the sysroot and does not stay correct across major releases — build with the SDK that matches the device's release.
+**Rendering, not just linking.** Matching the SDK to the target release matters beyond glibc. A template built with the **5.0 SDK** rendered incorrectly on a **5.1 device** (portrait orientation was not applied), fixed only by rebuilding against the 5.1 SDK. The SailfishOS Wayland/orientation path is compiled against the sysroot and does not stay correct across major releases — build with the SDK that matches the device's release.
 
 ---
 

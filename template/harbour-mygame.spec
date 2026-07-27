@@ -4,13 +4,13 @@ Release:        1
 Summary:        Your game's one-line description here
 License:        Proprietary
 
-# The binary is a pre-built Godot AuroraOS/SailfishOS export template.
+# The binary is a pre-built Godot SailfishOS export template.
 # rpmbuild is only used for packaging, not compilation.
 # Binary is already stripped; skip brp/strip to avoid failure on cross-arch build host.
 %define __strip /bin/true
 %define __os_install_post %{nil}
 
-# SDL2 is linked by the Godot AuroraOS template binary.
+# SDL2 is linked by the Godot SailfishOS template binary.
 Requires:       SDL2
 # EGL and GLES are NOT listed here: they are provided by the hybris GPU driver
 # stack on SailfishOS devices and are not registered as RPM capabilities, so
