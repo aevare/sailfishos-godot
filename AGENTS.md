@@ -11,8 +11,8 @@ A build-and-packaging toolkit (not an app) that turns a Godot 4 project into an 
 The flow is two scripts with a manual Godot export in between:
 
 1. **`1-build-template.sh`** → produces a Godot *export template* (`godot-templates/linux_arm64`). It clones the `savegame/godot` fork and does a **scratchbox2 (`sb2`) cross-compile** inside the SDK container: an x86 host builds an aarch64 binary against the SailfishOS sysroot (`scons platform=linuxbsd auroraos=yes arch=arm64 ...`). This is why it needs the SDK, not just a compiler. Done once per (Godot tag × SFOS release).
-2. **Manual step (Godot editor):** use that template in a Linux/X11 export preset to emit `build/harbour-APPNAME` + `.pck`.
-3. **`2-package.sh`** → wraps the exported binary + `.pck` into an aarch64 RPM by running `rpmbuild -bb` inside the same SDK image, using the scaffold in `template/`.
+2. **Export step (Godot editor, or headless in the `barichello/godot-ci` image):** use that template in a Linux/X11 export preset — arm64, `embed_pck=false` — to emit `build/harbour-APPNAME` + `.pck`. See README Step 2.
+3. **`2-package.sh`** → stages the exported binary + `.pck` and the whole `template/` scaffold into `sfos-pkg/`, then wraps them into an aarch64 RPM by running `rpmbuild -bb` inside the same SDK image.
 
 `.github/workflows/build-templates.yml` runs step 1 in CI as a matrix over SFOS releases (5.0/5.1/5.2) and publishes each `linux_arm64-sfos<version>` binary as a GitHub Release asset on `v*` tag pushes (`workflow_dispatch` builds artifacts only, for testing).
 
@@ -37,7 +37,8 @@ git tag v4.4.1 && git push origin v4.4.1
 - **`project.godot` orientation must be an integer** (`window/handheld/orientation=1`), never the string `"portrait"` — the string casts to `0` (landscape) and the game renders broken. Documented in README "Critical Godot project setting".
 - **RPM spec quirks** (`template/harbour-mygame.spec`): strip is disabled (`__strip /bin/true`) because the binary is pre-built and stripped on a cross-arch host; `Requires: SDL2` only — do **not** add `libEGL`/`libGLESv2`, they come from the hybris GPU stack and aren't RPM capabilities (declaring them breaks install).
 - **Sailjail profile** must `noblacklist` the hybris paths (`/system`, `/vendor`, `/odm`, droid-hybris) or the GLES/EGL driver won't load.
-- **`.desktop` Exec** launches with `--rendering-driver opengl3_es --main-pack .../<app>.pck` (device only exposes GLES, not desktop GL).
+- **`.desktop` Exec** launches with `--rendering-driver opengl3_es --main-pack .../<app>.pck` (device only exposes GLES, not desktop GL). This is why the export must keep `embed_pck=false` and be named exactly `APP_NAME`.
+- **Container-user file ownership**: `rpmbuild` runs as `mersdk` inside the SDK image, so `sfos-pkg/` and `RPMS/` must be `chmod a+rwX` before the run, and the RPMs it writes come back owned by uid 100000 (don't `chmod -R` over them from the host — it fails).
 
 ## Conventions
 

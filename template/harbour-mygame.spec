@@ -51,5 +51,5 @@ install -Dm 644 icons/172x172.png \
 %{_datadir}/icons/hicolor/172x172/apps/harbour-mygame.png
 
 %changelog
-* Mon Jan 01 2025 Your Name <your@email.com> - 1.0.0-1
+* Wed Jan 01 2025 Your Name <your@email.com> - 1.0.0-1
 - Initial release

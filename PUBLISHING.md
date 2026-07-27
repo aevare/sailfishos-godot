@@ -1,6 +1,6 @@
 # Publishing guide
 
-Steps to publish the godot-sfos repo and its pre-built assets to GitHub.
+Steps to publish the sailfishos-godot repo and its pre-built assets to GitHub.
 
 Replace `GITHUB_USER` with your GitHub username or organisation name throughout.
 
@@ -8,16 +8,15 @@ Replace `GITHUB_USER` with your GitHub username or organisation name throughout.
 
 ## 1. Create the GitHub repo
 
-Go to github.com, create a new repository named `godot-sfos` (public).
+Go to github.com, create a new repository named `sailfishos-godot` (public).
 
 Then push the local code:
 
 ```bash
-cd ~/Workspace/godot-sfos
 git init
 git add .
 git commit -m "Initial release"
-git remote add origin https://github.com/GITHUB_USER/godot-sfos.git
+git remote add origin https://github.com/GITHUB_USER/sailfishos-godot.git
 git branch -M main
 git push -u origin main
 ```
@@ -31,7 +30,6 @@ the [`build-templates.yml`](.github/workflows/build-templates.yml) workflow — 
 manual compiling or uploading. Just push a version tag:
 
 ```bash
-cd ~/Workspace/godot-sfos
 git tag v4.4.1        # tag names the Godot version; add -1, -2, … for rebuilds
 git push origin v4.4.1
 ```

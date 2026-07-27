@@ -1,4 +1,4 @@
-# godot-sfos
+# sailfishos-godot
 
 Scripts and packaging templates for building and distributing a Godot 4 game on SailfishOS.
 
@@ -56,7 +56,52 @@ Set `GODOT_TAG` and `SFOS_VERSION` at the top of the script (or pass them as env
 
 ### Step 2 — Export your game from Godot
 
-In Godot's export dialog, add a **Linux/X11** export preset. Set the custom template path to the `godot-templates/linux_arm64` file you just built. Export to `build/harbour-mygame` (no extension) — Godot will produce both the binary and the `.pck` file.
+In Godot's export dialog, add a **Linux/X11** export preset. Set the custom template path to the `godot-templates/linux_arm64` file you just built, set the architecture to **arm64**, and turn **Embed Pck off**. Export to `build/harbour-mygame` (no extension) — Godot will produce both the binary and the `.pck` file.
+
+Two things the packaging step depends on:
+
+- The export filename must equal `APP_NAME` (and the spec's `Name`) exactly — the `.desktop` launches `/usr/bin/<app>` with `--main-pack /usr/share/<app>/<app>.pck`.
+- Embed Pck must stay **off**; the spec installs the binary and the `.pck` to different prefixes.
+
+<details>
+<summary><b>Exporting headlessly (no Godot install, no GUI)</b></summary>
+
+The preset itself can be committed to your project's `export_presets.cfg`:
+
+```ini
+[preset.0]
+name="SailfishOS"
+platform="Linux/X11"
+export_path="build/harbour-mygame"
+custom_features="sailfishos"
+export_filter="all_resources"
+
+[preset.0.options]
+custom_template/release=""          ; injected at build time (see below)
+binary_format/architecture="arm64"
+binary_format/embed_pck=false
+```
+
+Then export inside the Godot CI image, mounting the template where Godot expects an official one:
+
+```bash
+TEMPLATE_DIR="/root/.local/share/godot/export_templates/4.4.1.stable"
+docker run --rm \
+  -v "$PWD":/project \
+  -v "$PWD/godot-templates/linux_arm64":"${TEMPLATE_DIR}/linux_arm64":ro \
+  -w /project \
+  barichello/godot-ci:4.4.1 bash -lc "
+    set -e
+    godot --headless --path /project --import >/dev/null 2>&1
+    sed -i 's|custom_template/release=\"\"|custom_template/release=\"${TEMPLATE_DIR}/linux_arm64\"|' \
+        /project/export_presets.cfg
+    godot --headless --path /project --export-release 'SailfishOS' /project/build/harbour-mygame
+  "
+```
+
+The `--import` pass is required — exporting without a populated `.godot/` import cache produces a `.pck` with missing resources. Files written by the container are root-owned; `chown` them back afterwards if you build locally.
+
+</details>
 
 ### Step 3 — Package as RPM
 
@@ -67,6 +112,35 @@ Rename the files in `template/` from `harbour-mygame` to your app name, edit the
 ```
 
 Set `APP_NAME` at the top of the script to match. Output: `RPMS/aarch64/harbour-mygame-1.0.0-1.aarch64.rpm`.
+
+### Step 4 — Install on device
+
+The RPM is unsigned, so it installs from the command line (developer mode) or a store client such as Storeman — not by tapping it in the file manager:
+
+```bash
+pkcon install-local --allow-untrusted harbour-mygame-1.0.0-1.aarch64.rpm
+```
+
+---
+
+## Using the published template in your own CI
+
+Downstream projects do not need this repo checked out — pin a release tag and pull the asset for the SailfishOS release you target:
+
+```yaml
+env:
+  TOOLKIT_TAG: v4.4.1
+  SFOS_VERSION: 5.1.0.11
+
+steps:
+  - name: Download Godot SailfishOS export template
+    run: |
+      curl -L --fail -o godot-template \
+        "https://github.com/aevare/sailfishos-godot/releases/download/${TOOLKIT_TAG}/linux_arm64-sfos${SFOS_VERSION}"
+      chmod 755 godot-template
+```
+
+Then mount `godot-template` into the export image as in Step 2, and run `rpmbuild` in `coderus/sailfishos-platform-sdk:${SFOS_VERSION}` as in `2-package.sh`. Keep the two versions pinned together: the template and the SDK doing the packaging should be the same SailfishOS release.
 
 ---
 

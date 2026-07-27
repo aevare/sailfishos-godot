@@ -98,7 +98,7 @@ jobs:
           | 5.2 | `linux_arm64-sfos5.2.0.15` |
 
           Download the one for your device, place it at `godot-templates/linux_arm64`
-          in your godot-sfos checkout (or point your Godot Linux/X11 export template
+          in your sailfishos-godot checkout (or point your Godot Linux/X11 export template
           path at it), then skip straight to exporting your game.
           EOF
           TAG="$GITHUB_REF_NAME"
